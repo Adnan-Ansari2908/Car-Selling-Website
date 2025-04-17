@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Car Showcase</title>
+  <style>
+    /* Reset and basic styling */
+    body, h1, h2, p, ul, li, nav, header, section, a, button, input, 
+    textarea, select, footer, form, div, table, th, td {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background: #76ffda;
+      color: #000000;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    /* Spinner Overlay (for page transitions) */
+    .spinner-overlay {
+      position: fixed;
+      top: 0; 
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .spinner-overlay.hidden {
+      display: none;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #fff;
+      border-top: 5px solid #333;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* Navigation styling */
+    nav {
+      background: #000000;
+      padding: 10px;
+      position: relative;
+    }
+    nav .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+    nav .hamburger span {
+      width: 25px;
+      height: 3px;
+      background: #fff;
+      display: block;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: flex-end;
+    }
+    nav ul li {
+      margin-left: 20px;
+    }
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      nav .hamburger {
+        display: flex;
+      }
+      nav ul {
+        display: none;
+        flex-direction: column;
+        background: #333;
+        margin-top: 10px;
+      }
+      nav ul.show {
+        display: flex;
+      }
+      nav ul li {
+        margin: 10px 0;
+      }
+    }
+    /* Header styling */
+    header {
+      margin: 20px 0;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    /* Search bar styling */
+    .search-container {
+
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .search-container input {
+      width: 50%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    /* Car Cards Section */
+    .cars {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+    .car-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      width: 30%;
+      margin: 10px;
+      padding: 20px;
+      transition: transform 0.3s;
+      position: relative;
+    }
+    .car-card:hover {
+      transform: scale(1.05);
+    }
+    .car-card img {
+      width: 100%;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+    .car-card h2 {
+      margin-bottom: 10px;
+    }
+    .car-card ul {
+      margin-bottom: 15px;
+    }
+    /* Button styling */
+    .btn {
+      display: inline-block;
+      color: #fff;
+      padding: 10px 15px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s;
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+      margin-right: 5px;
+    }
+    .btn:hover {
+      opacity: 0.8;
+    }
+    .btn-add {
+      background-color: #28a745;
+    }
+    .btn-add:hover {
+      background-color: #218838;
+    }
+    .btn-remove {
+      background-color: #dc3545;
+    }
+    .btn-remove:hover {
+      background-color: #c82333;
+    }
+    .btn-detail {
+      background-color: #007bff;
+    }
+    .btn-detail:hover {
+      background-color: #0069d9;
+    }
+    /* Cart Items styling */
+    .cart-items {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin: 20px auto;
+      width: 80%;
+      border-radius: 5px;
+    }
+    #cartList li {
+      margin: 8px 0;
+    }
+    /* Checkout Form styling */
+    .checkout-form {
+      margin-top: 20px;
+    }
+    .checkout-form h2 {
+      margin-bottom: 15px;
+    }
+    .checkout-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .checkout-form input,
+    .checkout-form textarea,
+    .checkout-form select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    /* Car Details Page styling */
+    .car-details {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .car-details h2 {
+      margin-bottom: 15px;
+    }
+    .car-details table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    .car-details th, .car-details td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    /* About, Careers, Terms styling */
+    #about-content, #careers-content, {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    #about-content h2, #careers-content h2, h2 {
+      margin-bottom: 15px;
+    }
+    #careers-content h3 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    /* Footer styling */
+    footer {
+      background: #000000f8;
+      color: #fff;
+      padding: 30px 20px;
+      margin-top: 40px;
+    }
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .footer-container h2 {
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+    .footer-container p {
+      margin: 5px 0;
+    }
+    .footer-links {
+      margin-top: 20px;
+    }
+    .footer-links a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px;
+      font-weight: bold;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    /* Hide all pages by default */
+    .page {
+      display: none;
+    }
+    /* Show the active page */
+    .active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Spinner Overlay -->
+  <div id="spinner" class="spinner-overlay hidden">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <div class="hamburger" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <ul>
+      <li><a onclick="showPage('home')">Home</a></li>
+      <li><a onclick="showPage('about')">About</a></li>
+      <li><a onclick="showPage('careers')">Careers</a></li>
+    </ul>
+  </nav>
+
+  <!-- Home Page (Landing Page) -->
+  <section id="home" class="page active">
+    <header>
+      <h1>Welcome to Car Showcase</h1>
+      <p>Your one-stop destination for high-performance cars.</p>
+    </header>
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search for cars...">
+    </div>
+    <section class="cars">
+      <!-- Car Card 1: Skoda Slavia -->
+      <div class="car-card">
+        <img src="skodaslavia.webp" alt="Sporty Sedan">
+        <h2>Skoda Slavia</h2>
+        <ul>
+          <li>Engine: 2.0L Turbocharged Inline-4</li>
+          <li>Horsepower: 250 HP</li>
+          <li>Transmission: 6-speed Manual</li>
+          <li>Price: ₹10,00,000</li>
+        </ul>
+        <button class="btn btn-detail" onclick="showPage('car-slavia')">View Details</button>
+      </div>
+	   <!-- Car Card 2: Toyota Supra -->
+      <div class="car-card">
+        <img src="toyotasupra.webp" alt="Toyota Supra">
+        <h2>Toyota Supra</h2>
+        <ul>
+          <li>Engine: 3.0L Turbocharged I6</li>
+          <li>Horsepower: 382 HP</li>
+          <li>Transmission: 8-speed Automatic</li>
+          <li>Price: ₹75,00,000</li>
+        </ul>
+        <button class="btn btn-detail" onclick="showPage('car-supra')">View Details</button>
+
+      </div>
+
+	<!-- Car Card 3: Maserati Levante -->
+      <div class="car-card">
+        <img src="maseratilevante.webp" alt="Luxury SUV">
+        <h2>Maserati Levante</h2>
+        <ul>
+          <li>Engine: 3.5L V6</li>
+          <li>Horsepower: 300 HP</li>
+          <li>Transmission: 8-speed Automatic</li>
+          <li>Price: ₹2,10,00,000</li>
+        </ul>
+        <button class="btn btn-detail" onclick="showPage('car-levante')">View Details</button>
+      </div>
+	<!-- Car Card 4: Ford Mustang -->
+      <div class="car-card">
+        <img src="fordmustang.jpeg" alt="Ford Mustang">
+        <h2>Ford Mustang GT</h2>
+        <ul>
+          <li>Engine: 5.0L V8</li>
+          <li>Horsepower: 450 HP</li>
+          <li>Transmission: 10-speed Automatic</li>
+          <li>Price: ₹85,00,000</li>
+        </ul>
+        <button class="btn btn-detail" onclick="showPage('car-mustang')">View Details</button>
+      </div>
+
+
+      <!-- Car Card 6: Tesla Model S -->
+      <div class="car-card">
+        <img src="teslamodels.jpeg" alt="Tesla Model S">
+        <h2>Tesla Model S</h2>
+        <ul>
+          <li>Motor: Dual Electric Motors</li>
+          <li>Range: 375 Miles</li>
+          <li>Acceleration: 0-60 mph in 3.7 sec</li>
+          <li>Price: ₹80,00,000</li>
+        </ul>
+        <button class="btn btn-detail" onclick="showPage('car-tesla')">View Details</button>
+      </div>
+	<!-- Car Card 7: Audi R8 -->
+      <div class="car-card">
+        <img src="audir8.webp" alt="Audi R8">
+        <h2>Audi R8 V10</h2>
+        <ul>
+          <li>Engine: 5.2L V10</li>
+          <li>Horsepower: 602 HP</li>
+          <li>Transmission: 7-speed S tronic</li>
+          <li>Price: ₹2,75,00,000</li>
+        </ul>
+        <button class="btn btn-detail" onclick="showPage('car-r8')">View Details</button>
+
+      </div>
+	<!-- Car Card 8: Porsche 911 GT3RS -->
+      <div class="car-card">
+        <img src="porsche911.jpeg" alt="Porsche 911 GT3RS">
+        <h2>Porsche 911 GT3RS</h2>
+        <ul>
+          <li>Engine: 3.8L TwinTurbo H6</li>
+          <li>Horsepower: 640 HP</li>
+          <li>Transmission: 8-speed PDK</li>
+          <li>Price: ₹3,20,00,000</li>
+        </ul>
+        <button class="btn btn-detail" onclick="showPage('car-gt3rs')">View Details</button>
+
+      </div>
+
+    </section>
+  </section>
+
+  <!-- Car Detail Page: Skoda Slavia -->
+  <section id="car-slavia" class="page">
+    <div class="car-details">
+      <h2>Skoda Slavia - Technical Specifications</h2>
+      <img src="skodaslavia.webp" alt="Skoda Slavia" style="width:100%; border-radius:5px; margin-bottom:15px;">
+      <table>
+        <tr>
+          <th>Specification</th>
+          <th>Detail</th>
+        </tr>
+        <tr>
+          <td>Engine</td>
+          <td>2.0L Turbocharged Inline-4</td>
+        </tr>
+        <tr>
+          <td>Horsepower</td>
+          <td>250 HP</td>
+        </tr>
+        <tr>
+          <td>Transmission</td>
+          <td>6-speed Manual</td>
+        </tr>
+        <tr>
+          <td>Fuel Efficiency</td>
+          <td>18 km/l</td>
+        </tr>
+        <tr>
+          <td>Price</td>
+          <td>₹10,00,000</td>
+        </tr>
+      </table>
+      <button class="btn" style="background:#333;" onclick="showPage('home')">Back to Home</button>
+    </div>
+  </section>
+
+  <!-- Car Detail Page: Maserati Levante -->
+  <section id="car-levante" class="page">
+    <div class="car-details">
+      <h2>Maserati Levante - Technical Specifications</h2>
+      <img src="maseratilevante.webp" alt="Maserati Levante" style="width:100%; border-radius:5px; margin-bottom:15px;">
+      <table>
+        <tr>
+          <th>Specification</th>
+          <th>Detail</th>
+        </tr>
+        <tr>
+          <td>Engine</td>
+          <td>3.5L V6</td>
+        </tr>
+        <tr>
+          <td>Horsepower</td>
+          <td>300 HP</td>
+        </tr>
+        <tr>
+          <td>Transmission</td>
+          <td>8-speed Automatic</td>
+        </tr>
+        <tr>
+          <td>Fuel Efficiency</td>
+          <td>12 km/l</td>
+        </tr>
+        <tr>
+          <td>Price</td>
+          <td>₹2,10,00,000</td>
+        </tr>
+      </table>
+      <button class="btn" style="background:#333;" onclick="showPage('home')">Back to Home</button>
+    </div>
+  </section>
+
+  <!-- Car Detail Page: Tesla Model S -->
+  <section id="car-tesla" class="page">
+    <div class="car-details">
+      <h2>Tesla Model S - Technical Specifications</h2>
+      <img src="teslamodels.jpeg" alt="Tesla Model S" style="width:100%; border-radius:5px; margin-bottom:15px;">
+      <table>
+        <tr>
+          <th>Specification</th>
+          <th>Detail</th>
+        </tr>
+        <tr>
+          <td>Motor</td>
+          <td>Dual Electric Motors</td>
+        </tr>
+        <tr>
+          <td>Range</td>
+          <td>375 Miles</td>
+        </tr>
+        <tr>
+          <td>Acceleration</td>
+          <td>0-60 mph in 3.7 sec</td>
+        </tr>
+        <tr>
+          <td>Battery Capacity</td>
+          <td>100 kWh</td>
+        </tr>
+        <tr>
+          <td>Price</td>
+          <td>₹80,00,000</td>
+        </tr>
+      </table>
+      <button class="btn" style="background:#333;" onclick="showPage('home')">Back to Home</button>
+    </div>
+  </section>
+	  <!-- Car Detail Page: Ford Mustang GT -->
+  <section id="car-Ford" class="page">
+    <div class="car-details">
+      <h2>Ford Mustang GT - Technical Specifications</h2>
+      <img src="fordmustang.jpeg" alt="Ford Mustang GT" style="width:100%; border-radius:5px; margin-bottom:15px;">
+      <table>
+        <tr>
+          <th>Specification</th>
+          <th>Detail</th>
+        </tr>
+        <tr>
+          <td>Engine</td>
+          <td>5.0L V8 </td>
+        </tr>
+        <tr>
+          <td>Horsepower</td>
+          <td>450HP</td>
+        </tr>
+        <tr>
+          <td>Transmission</td>
+          <td>10-Speed Automatic</td>
+        </tr>
+        <tr>
+          <td>Fuel Efficiency</td>
+          <td>12 Km</td>
+        </tr>
+        <tr>
+          <td>Price</td>
+          <td>₹85,00,000</td>
+        </tr>
+      </table>
+      <button class="btn" style="background:#333;" onclick="showPage('home')">Back to Home</button>
+    </div>
+  </section>
+
+
+  <!-- About Page -->
+  <section id="about" class="page">
+      <h2>About Car Showcase</h2>
+      <p>
+        Car Showcase is a leading platform dedicated to providing comprehensive information, reviews, 
+        and comparisons of high-performance cars from around the world. Established in 2023, our 
+        mission is to help car enthusiasts and buyers make informed decisions about their next automobile purchase.
+      </p>
+      <p>
+        Our team is composed of automotive experts, engineers, and passionate writers who spend 
+        countless hours researching and testing the latest models, ensuring that our audience 
+        has access to the most accurate and up-to-date information. From electric hatchbacks 
+        to luxury SUVs, we strive to cover a wide range of vehicles to suit every lifestyle and budget.
+      </p>
+      <p>
+        In addition to our extensive car database, we also provide a user-friendly interface 
+        that allows customers to compare vehicles, read expert opinions, and stay updated 
+        on industry trends. Our commitment to quality and transparency has made us a trusted 
+        source in the automotive community.
+      </p>
+      <p>
+        We believe in a future where cars are not only powerful and stylish, but also 
+        sustainable and efficient. Through our platform, we hope to drive awareness about 
+        eco-friendly innovations and encourage responsible choices that benefit both drivers 
+        and the environment.
+      </p>
+      <p>
+        Thank you for choosing Car Showcase. We look forward to helping you find the perfect 
+        car that matches your needs, preferences, and aspirations.
+      </p>
+    </div>
+  </section>
+
+  <!-- Careers Page -->
+  <section id="careers" class="page">
+    <div id="careers-content">
+      <h2>Careers at Car Showcase</h2>
+      <p>
+        Join our team of passionate automotive experts and help us shape the future of car 
+        shopping and information sharing. We offer a dynamic environment, competitive 
+        benefits, and opportunities for growth. If you love cars and thrive on innovation, 
+        we’d love to hear from you!
+      </p>
+      <h3>1. Social Media Manager</h3>
+      <ul>
+        <li>Develop and implement social media strategies</li>
+        <li>Create engaging content for various platforms</li>
+        <li>Analyze performance metrics and optimize campaigns</li>
+        <li>Collaborate with marketing and design teams</li>
+      </ul>
+      <h3>2. Sales Executive</h3>
+      <ul>
+        <li>Manage client relationships and negotiations</li>
+        <li>Identify new business opportunities</li>
+        <li>Meet and exceed sales targets</li>
+        <li>Maintain a high level of customer satisfaction</li>
+      </ul>
+      <h3>3. Automotive Engineer / Specialist</h3>
+      <ul>
+        <li>Evaluate and test new car models</li>
+        <li>Provide technical insights and reviews</li>
+        <li>Collaborate with editorial team for technical articles</li>
+        <li>Stay updated on emerging automotive technologies</li>
+      </ul>
+      <h3>4. Marketing Specialist</h3>
+      <ul>
+        <li>Plan and execute marketing campaigns</li>
+        <li>Monitor and analyze campaign performance</li>
+        <li>Coordinate with designers and content creators</li>
+        <li>Identify new trends and growth opportunities</li>
+      </ul>
+      <h3>5. Customer Support Specialist</h3>
+      <ul>
+        <li>Assist customers with inquiries and support</li>
+        <li>Handle feedback and resolve issues promptly</li>
+        <li>Collaborate with other departments for seamless service</li>
+        <li>Maintain a high level of customer satisfaction</li>
+      </ul>
+      <p>
+        To apply for any of these positions, please send your resume and a brief cover 
+        letter to <strong>careers@carshowcase.com</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer: Contact Us Area -->
+  <footer>
+  <div class="footer-container">
+    <h2>Contact Us</h2>
+    <p>Have questions or comments? Reach out to us!</p>
+    <div class="contact-links">
+      <a href="tel:+919697555586">
+        <img src="phone.png" alt="Phone" class="contact-icon"
+	  alt="Phone"
+	  width="50"
+	  height="50"
+	  border="2"
+	  align="middle">
+      </a>
+      <a href="mailto:support@carshowcase.com">
+        <img src="email.jpeg" alt="Email" class="contact-icon" 
+	  alt="Email"
+	  width="50"
+	  height="50"
+	  border="2"
+	  align="middle">
+      </a>
+    </div>
+  </div>
+</footer>
+
+
+  <!-- JavaScript for Navigation, Spinner, Cart, and Detail Views -->
+  <script>
+    let cart = [];
+
+    // Toggle hamburger menu
+    function toggleMenu() {
+      const navUl = document.querySelector('nav ul');
+      navUl.classList.toggle('show');
+    }
+
+    // Show a specific page with a spinner delay
+    function showPage(pageId) {
+      const spinner = document.getElementById('spinner');
+      spinner.classList.remove('hidden');
+      setTimeout(() => {
+        const pages = document.getElementsByClassName('page');
+        for (let i = 0; i < pages.length; i++) {
+          pages[i].classList.remove('active');
+        }
+        document.getElementById(pageId).classList.add('active');
+        const navUl = document.querySelector('nav ul');
+        navUl.classList.remove('show');
+        spinner.classList.add('hidden');
+      }, 400);
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+      let filter = this.value.toLowerCase();
+      let carCards = document.getElementsByClassName('car-card');
+      for (let i = 0; i < carCards.length; i++) {
+        let carName = carCards[i].getElementsByTagName('h2')[0].textContent.toLowerCase();
+        carCards[i].style.display = carName.indexOf(filter) > -1 ? "" : "none";
+      }
+    });
+  </script>
+</body>
+</html>
